@@ -3,25 +3,26 @@ import random
 import re
 import time
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #inicjalizacja gniazda
 
-server = ('192.168.1.14',12345)
+server = ('192.168.43.120',12345) #zmienna przechowująca adres IP serwera oraz port na którym serwer będzie prowadzić nasłuchiwanie
+#inicjalizacja zmiennych
+liczba1 = 0  #liczby będące argumentami operacji 
+liczba2 = 0 
 
-liczba1 = 0
-liczba2 = 0
+komunikat = '' #zmienna służąca do przechowywania komunikatu w formie gotowej do przesłania serwerowi
 
-komunikat = ''
-klucz = 'Operacja:'
-
+klucz = 'Operacja:' 
 status = 'Status: null;'
+znacznik = int(time.time()) #znacznik czasu wyrażony jako liczba całkowita
+znacznikToStr = ";znacznik: "+ str(znacznik) #rzutowanie znacznika czasu na wartość typu "string", tak aby był odpowiedni do przesyłania przez protokół tekstowy
 
-znacznik = int(time.time())
-znacznikToStr = ";znacznik: "+ str(znacznik)
 tablica = "ABCDEFGHIJKLMNOPRSTUWXYZ"
-lista_argumentow = []
-wieloargument = ''
+lista_argumentow = [] #tablica przechowująca argumenty operacji używana w przypadku operacji wieloargumentowych
+wieloargument = '' #wartość typu "string" służąca do przechowywania wszystkich argumentów operacji wieloargumentowych w formie odpowiedniej dla danego komunikatu protokołu tekstowego
 
 
+#wartość typu "string" zawierająca liste wszystkich dostępnych użytkownikowi operacji
 wybor = ('''
 Wybierz opcje: 
 1. Dodawanie 
@@ -37,22 +38,23 @@ Wybierz opcje:
 11. Mnozenie wieloargumentowe
 ''')
   
-sock.connect(server)
-print(sock.recv(1024).decode())
-ID = (sock.recv(1024).decode())
-numberID = re.findall("\d+",ID)
-identyfikator = "identyfikator: " + numberID[0] + ";"
+sock.connect(server) #połączenie z serwerem
+print(sock.recv(1024).decode()) #otrzymanie od serwera i wyświetlenie komunikatu protokołu tekstowego operacji nawiązania połączenia
+ID = (sock.recv(1024).decode()) #przyjęcie od serwera komunikatu z unikalnym numerem identyfikatora sesji
+numberID = re.findall("\d+",ID) #wyodrębnienie numeru identyfikatora w otrzymanym komunikacie za pomocą wyrażenia regularnego
+identyfikator = "identyfikator: " + numberID[0] + ";" #zdefiniowanie pola nagłówka zawierającego numer identyfikatora sesji
 print(identyfikator)
 print(wybor)
-operation = input("")
+operation = input("") #wczytanie od użytkownika numeru wybranej operacji 
 if operation == "1":
     print ("Jakie liczby chcesz dodac")    
     print ("liczba 1 :")
-    liczba1 = int(input(""))
+    liczba1 = int(input("")) #wczytanie od użytkownika pierwszego argumentu operacji
     print ("liczba 2 :")
-    liczba2 = int(input(""))
+    liczba2 = int(input(""))  #wczytanie od użytkownika drugiego argumentu operacji
 
     komunikat = klucz + " DODAJ;" + status + identyfikator + "LA: "+ str(liczba1)+ ";LB: " + str(liczba2) + znacznikToStr + ";"
+    #umieszczenie w komunikacie: nazwy operacji, statusu, identyfikatora sesji, argumentów operacji oraz znacznika czas w formie zgodnej z treścią polecenia
 
 elif operation == "2":
     print ("Jakie liczby chcesz odjac")
@@ -119,17 +121,18 @@ elif operation == "8":
 elif operation == "9":
     print ("Ile liczb chcesz do siebie dodac?")
     print ("ilosc argumentow")
-    arg = int(input(""))
-    for i in range (arg):
+    arg = int(input("")) #wczytanie ilości argumentów działania od użytkownika 
+    for i in range (arg): #pętla wczytująca od użytkownika taką ilość argumentów operacji jaką początkowo podał
         liczba = int(input(""))
-        lista_argumentow.append(liczba)
+        lista_argumentow.append(liczba) #dodawanie wczytanych argumentów do tablicy wartości int
     
 
     for i in range(arg-1): 
-     wieloargument +=  "L" + tablica[i] + ": " + str(lista_argumentow[i]) +";"
-    wieloargument += "L" + tablica[arg-1] + ": " + str(lista_argumentow[arg-1])
-    wieloargument = str(wieloargument)
+     wieloargument +=  "L" + tablica[i] + ": " + str(lista_argumentow[i]) +";" #wczytanie wartości argumentów operacji z przechowującej ich tablicy (bez ostatniego) i rzutowanie ich na wartość typu "string" w odpowiedniej formie ustalonej w zadaniu
+    wieloargument += "L" + tablica[arg-1] + ": " + str(lista_argumentow[arg-1]) #wczytanie i rzutowanie na wartość typu "string" ostatniej wartości zawartej w tablicy
+   
     komunikat = klucz + " DWIELE;" + status + identyfikator +"ILE: " +str(arg)+";" + wieloargument + znacznikToStr + ";"
+    #umieszczenie w komunikacie: nazwy operacji, statusu, identyfikatora sesji, wieloargumentu zawierającego wszysktie argumenty operacji oraz znacznika czas w formie zgodnej z treścią polecenia
 
 elif operation == "10":
     print ("Ile liczb chcesz od siebie odjac?")
@@ -144,7 +147,7 @@ elif operation == "10":
      wieloargument +=  "L" + tablica[i] + ": " + str(lista_argumentow[i]) +";"
     wieloargument += "L" + tablica[arg-1] + ": " + str(lista_argumentow[arg-1])
 
-    wieloargument = str(wieloargument)
+   
     komunikat = klucz + " OWIELE;" + status + identyfikator +"ILE: " +str(arg)+";" + wieloargument + znacznikToStr + ";"
 
 
@@ -160,22 +163,19 @@ elif operation == "11":
     for i in range(arg-1): 
      wieloargument +=  "L" + tablica[i] + ": " + str(lista_argumentow[i]) +";"
     wieloargument += "L" + tablica[arg-1] + ": " + str(lista_argumentow[arg-1])
-    wieloargument = str(wieloargument)
+    
     komunikat = klucz + " POMNOZWIELE;" + status + identyfikator +"ILE: " +str(arg)+";" + wieloargument + znacznikToStr + ";"
 
 else :
     print ("wybrano zły numer")
-    sock.close()
+    sock.close() #zakończenie połączenia 
      
-sock.sendall(komunikat.encode())
+sock.sendall(komunikat.encode()) #przesłanie komunikatu do serwera
 
-#dziekuje = (sock.recv(1024).decode())
-#print ("to jest dziekuje: "+ dziekuje)
-
-koniec = (sock.recv(1024).decode())
-wynik = re.findall ("-?\d+", koniec)
+koniec = (sock.recv(1024).decode()) #przyjęcie komunikatu zawierającego wynik od serwera 
+wynik = re.findall ("-?\d+", koniec) #wyodrębnienie wyniku w otrzymanym komunikacie za pomocą wyrażenia regularnego
 print (koniec)
-print ("wynik: " + wynik[1])
+print ("wynik: " + wynik[1]) #wyświetlenie otrzymanego wyniku
 
 print ("Zamykam polaczenie") 
-sock.close()
+sock.close() #zamknięcie połączenia
