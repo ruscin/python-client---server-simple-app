@@ -88,12 +88,19 @@ while True:
             c.sendall ((klucz+ "POTEGOWANIE;" + statusOK + identyfikator + "LA: " + wynik+ znacznikToStr + ";").encode())
         elif "PIERWIASTEK" in data:
             print ("pierwiastkowanie")   
-
+            if liczba1 <= 0:
+                wynik = 0
+                wynik = str(wynik)
+                c.sendall ((klucz+ "PIERWIASTEK;" + statusBLAD + identyfikator + "LA: " + wynik + znacznikToStr + ";").encode()) 
             wynik = pow(liczba1, 1.0/liczba2)
             wynik = str(wynik)
             c.sendall ((klucz+ "PIERWIASTEK;" + statusOK + identyfikator + "LA: " + wynik+ znacznikToStr + ";").encode())
         elif "MODULO" in data:
             print ("Modulo")
+             if liczba1 == 0:
+                wynik = 0
+                wynik = str(wynik)
+                c.sendall ((klucz+ "MODULO;" + statusBLAD + identyfikator + "LA: " + wynik + znacznikToStr + ";").encode()) 
             
             wynik = liczba1 % liczba2
             wynik = str(wynik)
